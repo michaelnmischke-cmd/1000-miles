@@ -42,7 +42,7 @@ With a free Apple ID, the app stops opening after 7 days. Just plug in and press
 
 ### Try it without your phone
 
-Pick any iPhone simulator from the device menu and press Play. The Simulator has no real steps, so the app shows sample miles.
+Pick any iPhone simulator from the device menu and press Play. Make sure a Team is selected (step 3) first, because Apple Health only works when the app is signed. The Simulator has no real steps, so the app shows sample miles.
 
 ## Project layout
 

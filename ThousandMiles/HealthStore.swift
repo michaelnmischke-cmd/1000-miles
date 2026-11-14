@@ -12,6 +12,8 @@ final class HealthStore {
         case loading
         case ready
         case unavailable
+        /// iOS hasn't shown the Health permission sheet yet (or it was dismissed).
+        case needsPermission
         case failed(String)
     }
 
@@ -25,19 +27,28 @@ final class HealthStore {
     private let store = HKHealthStore()
     private let distanceType = HKQuantityType(.distanceWalkingRunning)
     private let calendar = Calendar.current
+    private var readTypes: Set<HKObjectType> { [distanceType] }
 
     var isHealthAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
 
+    /// Shows the Health permission sheet if iOS hasn't asked yet. Safe to call any time:
+    /// once the user has answered, iOS doesn't show the sheet again.
     func requestAccess() async {
         guard isHealthAvailable else {
             status = .unavailable
             return
         }
         do {
-            try await store.requestAuthorization(toShare: [], read: [distanceType])
+            try await store.requestAuthorization(toShare: [], read: readTypes)
         } catch {
-            status = .failed(error.localizedDescription)
+            status = .failed(Self.describe(error))
         }
+    }
+
+    /// True when iOS still needs to show the permission sheet.
+    private func needsToAsk() async -> Bool {
+        let requestStatus = try? await store.statusForAuthorizationRequest(toShare: [], read: readTypes)
+        return requestStatus == .shouldRequest
     }
 
     func refresh() async {
@@ -45,6 +56,21 @@ final class HealthStore {
             status = .unavailable
             return
         }
+
+        // Ask for permission first if it hasn't been granted or denied yet.
+        if await needsToAsk() {
+            await requestAccess()
+            if case .failed = status {
+                useSampleDataIfSimulator()
+                return
+            }
+            if await needsToAsk() {
+                status = .needsPermission
+                useSampleDataIfSimulator()
+                return
+            }
+        }
+
         if case .ready = status {} else { status = .loading }
 
         let now = Date()
@@ -65,23 +91,38 @@ final class HealthStore {
                     result[stats.startDate] = sum.doubleValue(for: .mile())
                 }
             }
-
-            #if targetEnvironment(simulator)
-            if result.isEmpty {
-                result = Self.sampleData(from: startOfYear, to: now, calendar: calendar)
-                isShowingSampleData = true
-            }
-            #endif
-
             dailyMiles = result
             lastUpdated = now
+            isShowingSampleData = false
             status = .ready
+            if result.isEmpty { useSampleDataIfSimulator() }
+        } catch let error as HKError where error.code == .errorAuthorizationNotDetermined {
+            status = .needsPermission
+            useSampleDataIfSimulator()
         } catch {
-            status = .failed(error.localizedDescription)
+            status = .failed(Self.describe(error))
+            useSampleDataIfSimulator()
         }
     }
 
-    /// Made-up miles so the Simulator shows something realistic.
+    private static func describe(_ error: Error) -> String {
+        let text = error.localizedDescription
+        if text.localizedCaseInsensitiveContains("entitlement") {
+            return "\(text). In Xcode, open Signing & Capabilities and make sure a Team is selected."
+        }
+        return text
+    }
+
+    /// The Simulator has no real steps, so fill in made-up miles to show the design.
+    private func useSampleDataIfSimulator() {
+        #if targetEnvironment(simulator)
+        let now = Date()
+        let startOfYear = calendar.dateInterval(of: .year, for: now)?.start ?? now
+        dailyMiles = Self.sampleData(from: startOfYear, to: now, calendar: calendar)
+        isShowingSampleData = true
+        #endif
+    }
+
     private static func sampleData(from start: Date, to end: Date, calendar: Calendar) -> [Date: Double] {
         var data: [Date: Double] = [:]
         var day = start

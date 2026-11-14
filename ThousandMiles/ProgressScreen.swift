@@ -38,6 +38,28 @@ struct ProgressScreen: View {
             banner("Apple Health isn't available on this device.", icon: "exclamationmark.triangle.fill")
         case .failed(let message):
             banner("Couldn't read Health data: \(message)", icon: "exclamationmark.triangle.fill")
+        case .needsPermission:
+            VStack(alignment: .leading, spacing: 12) {
+                Label("1000 Miles needs permission to read your walking and running distance from Apple Health.", systemImage: "heart.text.square.fill")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Button {
+                    Task {
+                        await health.requestAccess()
+                        await health.refresh()
+                    }
+                } label: {
+                    Text("Connect Apple Health")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .foregroundStyle(.white)
+                        .background(Theme.gradient, in: Capsule())
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(14)
+            .background(Theme.coral.opacity(0.1), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         case .ready where health.dailyMiles.isEmpty:
             banner("No miles yet this year. If you've been walking, check that 1000 Miles is allowed to read Walking + Running Distance in the Health app (Profile > Apps > 1000 Miles).", icon: "heart.text.square.fill")
         default:
