@@ -1,27 +1,21 @@
 import SwiftUI
 
-/// The big ring that fills up as you get closer to your goal.
+/// A small ring for hand-logged goals ("side trails", like 500 pull-ups).
+/// The main miles goal is drawn as a TrailMap instead.
 struct ProgressRing: View {
     var fraction: Double
-    var lineWidth: CGFloat = 26
+    var lineWidth: CGFloat = 5
+    var color: Color = Theme.forest
 
     @State private var shown: Double = 0
 
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Theme.coral.opacity(0.15), lineWidth: lineWidth)
+                .stroke(Theme.track, lineWidth: lineWidth)
             Circle()
                 .trim(from: 0, to: max(shown, 0.001))
-                .stroke(
-                    AngularGradient(
-                        colors: [Theme.orange, Theme.coral],
-                        center: .center,
-                        startAngle: .degrees(0),
-                        endAngle: .degrees(360 * max(shown, 0.001))
-                    ),
-                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                )
+                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
         }
         .padding(lineWidth / 2)
@@ -37,6 +31,6 @@ struct ProgressRing: View {
 }
 
 #Preview {
-    ProgressRing(fraction: 0.62)
-        .frame(width: 260, height: 260)
+    ProgressRing(fraction: 0.74)
+        .frame(width: 44, height: 44)
 }

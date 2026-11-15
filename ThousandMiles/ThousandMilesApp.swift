@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 @main
 struct ThousandMilesApp: App {
@@ -27,7 +28,7 @@ struct RootView: View {
                 OnboardingView()
             }
         }
-        .tint(Theme.coral)
+        .tint(Theme.trail)
         .task {
             if healthAccessRequested { await health.refresh() }
         }
@@ -40,6 +41,22 @@ struct RootView: View {
 }
 
 struct MainTabView: View {
+    init() {
+        // Dark trail-map tab bar with a trail-blaze yellow selected tab.
+        let look = UITabBarAppearance()
+        look.configureWithOpaqueBackground()
+        look.backgroundColor = UIColor(Theme.tabBar)
+        look.shadowColor = .clear
+        for item in [look.stackedLayoutAppearance, look.inlineLayoutAppearance, look.compactInlineLayoutAppearance] {
+            item.normal.iconColor = UIColor(Theme.tabInactive)
+            item.normal.titleTextAttributes = [.foregroundColor: UIColor(Theme.tabInactive)]
+            item.selected.iconColor = UIColor(Theme.blaze)
+            item.selected.titleTextAttributes = [.foregroundColor: UIColor(Theme.blaze)]
+        }
+        UITabBar.appearance().standardAppearance = look
+        UITabBar.appearance().scrollEdgeAppearance = look
+    }
+
     var body: some View {
         TabView {
             ProgressScreen()
