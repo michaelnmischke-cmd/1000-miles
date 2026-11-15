@@ -61,7 +61,7 @@ struct ProgressScreen: View {
             .padding(14)
             .background(Theme.coral.opacity(0.1), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         case .ready where health.dailyMiles.isEmpty:
-            banner("No miles yet this year. If you've been walking, check that 1000 Miles is allowed to read Walking + Running Distance in the Health app (Profile > Apps > 1000 Miles).", icon: "heart.text.square.fill")
+            banner("No miles yet this year. If you've been walking, check that 1000 Miles is allowed to read Walking + Running Distance and Steps in the Health app (Profile > Apps > 1000 Miles).", icon: "heart.text.square.fill")
         default:
             if health.isShowingSampleData {
                 banner("Showing sample miles because the Simulator has no step data.", icon: "info.circle.fill")

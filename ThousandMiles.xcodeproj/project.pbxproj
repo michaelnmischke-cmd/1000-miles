@@ -6,9 +6,40 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B1000000000000000000000D /* ThousandMilesWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* ThousandMilesWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B1000000000000000000000F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1000000000000000000000B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B10000000000000000000009;
+			remoteInfo = ThousandMilesWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B1000000000000000000000E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B1000000000000000000000D /* ThousandMilesWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		A10000000000000000000001 /* ThousandMiles.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThousandMiles.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000002 /* ThousandMiles.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThousandMiles.entitlements; sourceTree = "<group>"; };
+		B10000000000000000000001 /* ThousandMilesWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ThousandMilesWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000002 /* ThousandMilesWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThousandMilesWidget.entitlements; sourceTree = "<group>"; };
+		B10000000000000000000003 /* ThousandMilesWidget-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ThousandMilesWidget-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -17,10 +48,27 @@
 			path = ThousandMiles;
 			sourceTree = "<group>";
 		};
+		B10000000000000000000004 /* ThousandMilesWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ThousandMilesWidget;
+			sourceTree = "<group>";
+		};
+		B10000000000000000000005 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		A10000000000000000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B10000000000000000000006 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -34,6 +82,8 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000003 /* ThousandMiles */,
+				B10000000000000000000004 /* ThousandMilesWidget */,
+				B10000000000000000000005 /* Shared */,
 				A10000000000000000000006 /* Config */,
 				A10000000000000000000007 /* Products */,
 			);
@@ -43,6 +93,8 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000002 /* ThousandMiles.entitlements */,
+				B10000000000000000000002 /* ThousandMilesWidget.entitlements */,
+				B10000000000000000000003 /* ThousandMilesWidget-Info.plist */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -51,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000001 /* ThousandMiles.app */,
+				B10000000000000000000001 /* ThousandMilesWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -65,13 +118,16 @@
 				A10000000000000000000009 /* Sources */,
 				A10000000000000000000004 /* Frameworks */,
 				A1000000000000000000000A /* Resources */,
+				B1000000000000000000000E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B10000000000000000000010 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A10000000000000000000003 /* ThousandMiles */,
+				B10000000000000000000005 /* Shared */,
 			);
 			name = ThousandMiles;
 			packageProductDependencies = (
@@ -79,6 +135,29 @@
 			productName = ThousandMiles;
 			productReference = A10000000000000000000001 /* ThousandMiles.app */;
 			productType = "com.apple.product-type.application";
+		};
+		B10000000000000000000009 /* ThousandMilesWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B1000000000000000000000A /* Build configuration list for PBXNativeTarget "ThousandMilesWidgetExtension" */;
+			buildPhases = (
+				B10000000000000000000007 /* Sources */,
+				B10000000000000000000006 /* Frameworks */,
+				B10000000000000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B10000000000000000000004 /* ThousandMilesWidget */,
+				B10000000000000000000005 /* Shared */,
+			);
+			name = ThousandMilesWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = ThousandMilesWidgetExtension;
+			productReference = B10000000000000000000001 /* ThousandMilesWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -91,6 +170,9 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					A10000000000000000000008 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					B10000000000000000000009 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -110,12 +192,20 @@
 			projectRoot = "";
 			targets = (
 				A10000000000000000000008 /* ThousandMiles */,
+				B10000000000000000000009 /* ThousandMilesWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A1000000000000000000000A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B10000000000000000000008 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -132,7 +222,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B10000000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B10000000000000000000010 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B10000000000000000000009 /* ThousandMilesWidgetExtension */;
+			targetProxy = B1000000000000000000000F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1000000000000000000000E /* Debug */ = {
@@ -260,6 +365,60 @@
 			};
 			name = Release;
 		};
+		B1000000000000000000000B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/ThousandMilesWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ThousandMilesWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "1000 Miles";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "1000 Miles reads your walking and running distance and steps to show your progress on the widget.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.thousandmiles.ios.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		B1000000000000000000000C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Config/ThousandMilesWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/ThousandMilesWidget-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "1000 Miles";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "1000 Miles reads your walking and running distance and steps to show your progress on the widget.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.thousandmiles.ios.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -277,6 +436,15 @@
 			buildConfigurations = (
 				A1000000000000000000000E /* Debug */,
 				A1000000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B1000000000000000000000A /* Build configuration list for PBXNativeTarget "ThousandMilesWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B1000000000000000000000B /* Debug */,
+				B1000000000000000000000C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

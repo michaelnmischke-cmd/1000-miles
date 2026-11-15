@@ -42,7 +42,7 @@ struct SettingsScreen: View {
                 } header: {
                     Text("Apple Health")
                 } footer: {
-                    Text("1000 Miles reads Walking + Running Distance. To change access, open Health, tap your profile picture, then Apps > 1000 Miles.")
+                    Text("1000 Miles reads Walking + Running Distance and Steps. Steps from devices like WHOOP count too: in the WHOOP app, turn on the Apple Health connection and allow Steps. To change access, open Health, tap your profile picture, then Apps > 1000 Miles.")
                 }
 
                 Section("About") {
