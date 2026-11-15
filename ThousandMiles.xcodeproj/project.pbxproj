@@ -309,7 +309,7 @@
 				CODE_SIGN_ENTITLEMENTS = Config/ThousandMiles.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = F6682JM337;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "1000 Miles";
@@ -341,7 +341,7 @@
 				CODE_SIGN_ENTITLEMENTS = Config/ThousandMiles.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = F6682JM337;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "1000 Miles";
@@ -371,7 +371,7 @@
 				CODE_SIGN_ENTITLEMENTS = Config/ThousandMilesWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = F6682JM337;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/ThousandMilesWidget-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "1000 Miles";
@@ -398,7 +398,7 @@
 				CODE_SIGN_ENTITLEMENTS = Config/ThousandMilesWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = F6682JM337;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/ThousandMilesWidget-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "1000 Miles";
