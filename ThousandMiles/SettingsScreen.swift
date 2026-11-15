@@ -26,7 +26,7 @@ struct SettingsScreen: View {
                             Spacer()
                             Text("\(goalMiles) mi")
                                 .font(.body.weight(.semibold))
-                                .foregroundStyle(Theme.coral)
+                                .foregroundStyle(Theme.trail)
                         }
                     }
                 } header: {
@@ -48,6 +48,14 @@ struct SettingsScreen: View {
                 Section("About") {
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
                 }
+            }
+            .scrollContentBackground(.hidden)
+            .background {
+                ZStack {
+                    Theme.paper
+                    TopoBackground()
+                }
+                .ignoresSafeArea()
             }
             .navigationTitle("Settings")
         }

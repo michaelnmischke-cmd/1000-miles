@@ -3,33 +3,143 @@ import Charts
 
 struct ProgressScreen: View {
     @Environment(HealthStore.self) private var health
+    @Environment(\.openURL) private var openURL
     @AppStorage(SettingsKeys.goalMiles) private var goalMiles = 1000
+
+    private static let songURL = URL(string: "https://www.youtube.com/watch?v=tbNlMtqrYS0")!
 
     private var progress: YearProgress {
         YearProgress(dailyMiles: health.dailyMiles, goal: Double(goalMiles))
     }
 
+    private var dayOfYear: Int {
+        Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 16) {
                     statusBanner
-                    ringCard
-                    paceCard
-                    periodsCard
-                    chartCard
-                    MilestonesCard(progress: progress)
+                    header
+                    trailMap
+                    signs
+                    songButton
+                    periodsSection
+                    chartSection
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
             }
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("1000 Miles")
+            .background {
+                ZStack {
+                    Theme.paper
+                    TopoBackground()
+                }
+                .ignoresSafeArea()
+            }
+            .toolbar(.hidden, for: .navigationBar)
             .refreshable { await health.refresh() }
         }
     }
 
     // MARK: - Sections
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Eyebrow("Day \(dayOfYear) · \(String(progress.year)) trail")
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text("MILE \(Int(progress.total.rounded(.down)).formatted())")
+                    .font(Theme.display(64))
+                    .foregroundStyle(Theme.ink)
+                    .contentTransition(.numericText())
+                Text(decimalPart)
+                    .font(Theme.display(26))
+                    .foregroundStyle(Theme.trail)
+            }
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(progress.total.milesText) miles of \(progress.goal.wholeText)")
+        }
+        .padding(.top, 8)
+    }
+
+    /// ".3" from 847.3
+    private var decimalPart: String {
+        let tenths = Int(((progress.total - progress.total.rounded(.down)) * 10).rounded(.down))
+        return ".\(tenths)"
+    }
+
+    private var trailMap: some View {
+        TrailMap(
+            fraction: progress.fraction,
+            milestones: progress.milestones.map { miles in
+                (fraction: miles / progress.goal, label: miles.wholeText)
+            },
+            youLabel: "You · \(progress.total.milesText)"
+        )
+        .frame(height: 230)
+        .padding(.top, 14)
+    }
+
+    private var signs: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                if progress.isComplete {
+                    sign(label: "Summit reached", value: "\(progress.total.milesText) MI")
+                    sign(label: "Bonus miles", value: "\((progress.total - progress.goal).milesText) MI")
+                } else {
+                    sign(label: "To the summit", value: "\(progress.milesLeft.milesText) MI")
+                    sign(label: "Daily pace", value: "\(progress.dailyPaceNeeded.milesText) MI")
+                }
+            }
+            if !progress.isComplete {
+                let ahead = progress.aheadBy
+                Label(ahead >= 0
+                      ? "\(ahead.milesText) mi ahead of pace · \(progress.daysLeft) days left"
+                      : "\(abs(ahead).milesText) mi behind pace · \(progress.daysLeft) days left",
+                      systemImage: ahead >= 0 ? "arrow.up.right" : "arrow.down.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(ahead >= 0 ? Theme.forest : Theme.trail)
+            }
+        }
+    }
+
+    private func sign(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label.uppercased())
+                .font(.system(size: 9, weight: .semibold))
+                .tracking(1)
+                .opacity(0.85)
+            Text(value)
+                .font(Theme.display(24, weight: .heavy))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .signPlate()
+    }
+
+    private var songButton: some View {
+        Button {
+            openURL(Self.songURL)
+        } label: {
+            Label("Play the song", systemImage: "music.note")
+                .font(.system(size: 12, weight: .bold))
+                .textCase(.uppercase)
+                .tracking(1)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .foregroundStyle(Theme.ink)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .strokeBorder(Theme.ink, style: StrokeStyle(lineWidth: 1.5, dash: [5, 3]))
+                )
+        }
+        .buttonStyle(.plain)
+    }
 
     @ViewBuilder
     private var statusBanner: some View {
@@ -42,7 +152,7 @@ struct ProgressScreen: View {
             VStack(alignment: .leading, spacing: 12) {
                 Label("1000 Miles needs permission to read your walking and running distance from Apple Health.", systemImage: "heart.text.square.fill")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.inkMuted)
                 Button {
                     Task {
                         await health.requestAccess()
@@ -54,12 +164,12 @@ struct ProgressScreen: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .foregroundStyle(.white)
-                        .background(Theme.gradient, in: Capsule())
+                        .background(Theme.trail, in: Capsule())
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .background(Theme.coral.opacity(0.1), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(Theme.trail.opacity(0.1), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         case .ready where health.dailyMiles.isEmpty:
             banner("No miles yet this year. If you've been walking, check that 1000 Miles is allowed to read Walking + Running Distance and Steps in the Health app (Profile > Apps > 1000 Miles).", icon: "heart.text.square.fill")
         default:
@@ -69,86 +179,22 @@ struct ProgressScreen: View {
         }
     }
 
-    private var ringCard: some View {
-        VStack(spacing: 20) {
-            ZStack {
-                ProgressRing(fraction: progress.fraction)
-                VStack(spacing: 2) {
-                    Text(progress.total.milesText)
-                        .font(Theme.bigNumber(54))
-                        .contentTransition(.numericText())
-                        .minimumScaleFactor(0.6)
-                        .lineLimit(1)
-                    Text("of \(progress.goal.wholeText) mi")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    Text("\(progress.percent)%")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Theme.coral)
-                        .padding(.top, 4)
-                }
-                .padding(48)
-            }
-            .frame(maxWidth: 300)
-            .frame(maxWidth: .infinity)
-
-            HStack {
-                stat(value: progress.milesLeft.milesText, label: "miles left")
-                Divider().frame(height: 36)
-                stat(value: "\(progress.daysLeft)", label: progress.daysLeft == 1 ? "day left" : "days left")
-            }
-        }
-        .card()
-    }
-
-    private var paceCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("Daily pace", systemImage: "speedometer")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            if progress.isComplete {
-                Text("Goal reached! 🎉")
-                    .font(.title2.bold())
-                Text("Every mile from here is a bonus.")
-                    .foregroundStyle(.secondary)
-            } else {
-                Text("Walk \(progress.dailyPaceNeeded.milesText) mi a day to finish on time")
-                    .font(.title3.bold())
-                let ahead = progress.aheadBy
-                HStack(spacing: 6) {
-                    Image(systemName: ahead >= 0 ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
-                    Text(ahead >= 0
-                         ? "\(ahead.milesText) mi ahead of pace"
-                         : "\(abs(ahead).milesText) mi behind pace")
-                }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(ahead >= 0 ? Theme.good : Theme.orange)
-            }
-        }
-        .card()
-    }
-
-    private var periodsCard: some View {
+    private var periodsSection: some View {
         HStack {
             stat(value: progress.today.milesText, label: "today")
-            Divider().frame(height: 36)
             stat(value: progress.thisWeek.milesText, label: "this week")
-            Divider().frame(height: 36)
             stat(value: progress.thisMonth.milesText, label: "this month")
         }
         .card()
     }
 
-    private var chartCard: some View {
+    private var chartSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Miles per week", systemImage: "chart.bar.fill")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
+            Eyebrow("Miles per week")
 
             if progress.weeks.isEmpty {
                 Text("Your weekly miles will show up here.")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.inkMuted)
                     .frame(maxWidth: .infinity, minHeight: 120)
             } else {
                 Chart {
@@ -157,21 +203,28 @@ struct ProgressScreen: View {
                             x: .value("Week", week.weekStart, unit: .weekOfYear),
                             y: .value("Miles", week.miles)
                         )
-                        .foregroundStyle(Theme.gradient)
-                        .cornerRadius(3)
+                        .foregroundStyle(Theme.trail)
+                        .cornerRadius(2)
                     }
                     RuleMark(y: .value("Weekly target", progress.weeklyTarget))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                        .foregroundStyle(Color.secondary)
+                        .foregroundStyle(Theme.inkMuted)
                         .annotation(position: .top, alignment: .leading) {
                             Text("\(progress.weeklyTarget.milesText) mi/week on pace")
                                 .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Theme.inkMuted)
                         }
                 }
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .month)) { _ in
                         AxisValueLabel(format: .dateTime.month(.narrow))
+                            .foregroundStyle(Theme.inkMuted)
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks { _ in
+                        AxisGridLine().foregroundStyle(Theme.track)
+                        AxisValueLabel().foregroundStyle(Theme.inkMuted)
                     }
                 }
                 .frame(height: 160)
@@ -185,11 +238,14 @@ struct ProgressScreen: View {
     private func stat(value: String, label: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(Theme.bigNumber(24))
+                .font(Theme.display(28, weight: .heavy))
+                .monospacedDigit()
+                .foregroundStyle(Theme.ink)
                 .contentTransition(.numericText())
-            Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            Text(label.uppercased())
+                .font(.system(size: 9, weight: .bold))
+                .tracking(1)
+                .foregroundStyle(Theme.inkMuted)
         }
         .frame(maxWidth: .infinity)
     }
@@ -197,43 +253,9 @@ struct ProgressScreen: View {
     private func banner(_ text: String, icon: String) -> some View {
         Label(text, systemImage: icon)
             .font(.footnote)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.inkMuted)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(14)
-            .background(Theme.coral.opacity(0.1), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-}
-
-/// Badges for 10%, 25%, 50%, 75% and 100% of the goal (100, 250, 500, 750, 1000 miles by default).
-struct MilestonesCard: View {
-    let progress: YearProgress
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label("Milestones", systemImage: "medal.fill")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-            HStack(spacing: 0) {
-                ForEach(progress.milestones, id: \.self) { miles in
-                    let reached = progress.total >= miles
-                    VStack(spacing: 6) {
-                        ZStack {
-                            Circle()
-                                .fill(reached ? AnyShapeStyle(Theme.gradient) : AnyShapeStyle(Color(.tertiarySystemFill)))
-                            Image(systemName: reached ? "star.fill" : "lock.fill")
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundStyle(reached ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color.secondary))
-                        }
-                        .frame(width: 44, height: 44)
-                        Text(miles.wholeText)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(reached ? .primary : .secondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
-        }
-        .card()
+            .background(Theme.trail.opacity(0.1), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

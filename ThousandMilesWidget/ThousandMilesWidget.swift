@@ -88,7 +88,7 @@ enum MilesCache {
     }
 }
 
-// MARK: - Views
+// MARK: - Views (Trailhead look, see docs/design-trailhead.md)
 
 struct MilesWidgetView: View {
     @Environment(\.widgetFamily) private var family
@@ -103,67 +103,76 @@ struct MilesWidgetView: View {
             default: small
             }
         }
-        .containerBackground(for: .widget) { Color(.systemBackground) }
+        .containerBackground(for: .widget) {
+            switch family {
+            case .systemMedium: Theme.signWood
+            case .systemSmall: Theme.paper
+            default: Color.clear
+            }
+        }
     }
 
     private var p: YearProgress { entry.progress }
 
+    /// Paper map: "MILE 847" with a little trail climbing in the corner.
     private var small: some View {
-        ZStack {
-            WidgetRing(fraction: p.fraction, lineWidth: 12)
-            VStack(spacing: 0) {
+        ZStack(alignment: .topLeading) {
+            TrailMap(fraction: p.fraction, lineWidth: 6, pinSize: 14, animated: false)
+                .frame(width: 96, height: 72)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            VStack(alignment: .leading, spacing: 0) {
+                Eyebrow("Mile")
                 Text(entry.hasData ? p.total.wholeText : "–")
-                    .font(Theme.bigNumber(30))
+                    .font(Theme.display(40))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.ink)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
-                Text("of \(p.goal.wholeText) mi")
+                Text("of \(p.goal.wholeText)")
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.inkMuted)
             }
-            .padding(22)
         }
     }
 
+    /// Wooden trail sign with a straight trail and milestone ticks.
     private var medium: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                WidgetRing(fraction: p.fraction, lineWidth: 12)
-                Text("\(p.percent)%")
-                    .font(Theme.bigNumber(20))
-            }
-            .frame(width: 110, height: 110)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(entry.hasData ? "\(p.total.milesText) mi" : "Open 1000 Miles")
-                    .font(Theme.bigNumber(26))
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(entry.hasData ? "MILE \(p.total.milesText)" : "OPEN 1000 MILES")
+                    .font(Theme.display(32))
+                    .monospacedDigit()
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
-                Text("\(p.milesLeft.wholeText) mi left · \(p.daysLeft) days")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                if p.isComplete {
-                    Text("Goal reached! 🎉")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Theme.good)
-                } else {
-                    Text("Walk \(p.dailyPaceNeeded.milesText) mi a day")
-                        .font(.subheadline.weight(.semibold))
-                    Text(p.aheadBy >= 0
-                         ? "\(p.aheadBy.milesText) mi ahead"
-                         : "\(abs(p.aheadBy).milesText) mi behind")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(p.aheadBy >= 0 ? Theme.good : Theme.orange)
-                }
+                Spacer(minLength: 4)
+                Eyebrow(p.isComplete ? "Summit!" : "\(p.milesLeft.wholeText) to go", color: Theme.signText)
             }
-            Spacer(minLength: 0)
+            StraightTrail(fraction: p.fraction, milestones: YearProgress.milestoneFractions)
+                .frame(height: 22)
+            HStack {
+                Text("Jan 1")
+                Spacer()
+                Text(p.isComplete
+                     ? "Today \(p.today.milesText) mi"
+                     : (p.aheadBy >= 0
+                        ? "\(p.aheadBy.milesText) mi ahead"
+                        : "\(abs(p.aheadBy).milesText) mi behind"))
+                    .foregroundStyle(p.aheadBy >= 0 || p.isComplete ? Theme.signText : Theme.blaze)
+                Spacer()
+                Text("Summit")
+            }
+            .font(.system(size: 10, weight: .semibold))
+            .opacity(0.9)
         }
+        .foregroundStyle(Theme.signText)
     }
 
     private var circular: some View {
         Gauge(value: p.fraction) {
-            Image(systemName: "figure.walk")
+            Image(systemName: "figure.hiking")
         } currentValueLabel: {
             Text(p.total.wholeText)
+                .font(Theme.display(16))
                 .minimumScaleFactor(0.5)
         }
         .gaugeStyle(.accessoryCircularCapacity)
@@ -171,36 +180,52 @@ struct MilesWidgetView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("1000 Miles")
-                .font(.headline)
+            Text("1000 MILES")
+                .font(.system(size: 11, weight: .bold))
+                .tracking(1)
                 .widgetAccentable()
             Text("\(p.total.milesText) mi · \(p.percent)%")
-                .font(.body.weight(.semibold))
+                .font(Theme.display(20, weight: .heavy))
             Gauge(value: p.fraction) { EmptyView() }
                 .gaugeStyle(.accessoryLinearCapacity)
         }
     }
 }
 
-/// A ring without animation (widgets are still images).
-struct WidgetRing: View {
+/// A flat trail for the medium widget: dotted ahead, blaze-yellow behind, a tick at each milestone.
+struct StraightTrail: View {
     var fraction: Double
-    var lineWidth: CGFloat
+    var milestones: [Double]
 
     var body: some View {
-        ZStack {
-            Circle()
-                .stroke(Theme.coral.opacity(0.18), lineWidth: lineWidth)
-            Circle()
-                .trim(from: 0, to: max(min(fraction, 1), 0.001))
-                .stroke(
-                    AngularGradient(colors: [Theme.orange, Theme.coral], center: .center,
-                                    startAngle: .degrees(0), endAngle: .degrees(360 * max(fraction, 0.001))),
-                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
+        GeometryReader { geo in
+            let w = geo.size.width, mid = geo.size.height / 2
+            let f = min(max(fraction, 0), 1)
+            ZStack(alignment: .leading) {
+                line(from: 0, to: w, y: mid)
+                    .stroke(Theme.signText.opacity(0.45), style: StrokeStyle(lineWidth: 4, lineCap: .round, dash: [0.5, 7]))
+                line(from: 0, to: w * f, y: mid)
+                    .stroke(Theme.blaze, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                ForEach(milestones, id: \.self) { m in
+                    Rectangle()
+                        .fill(Theme.signText)
+                        .frame(width: 1.5, height: geo.size.height * 0.8)
+                        .position(x: w * m, y: mid)
+                }
+                Circle()
+                    .fill(Theme.trail)
+                    .overlay(Circle().strokeBorder(Theme.signText, lineWidth: 2))
+                    .frame(width: 13, height: 13)
+                    .position(x: w * f, y: mid)
+            }
         }
-        .padding(lineWidth / 2)
+    }
+
+    private func line(from x0: CGFloat, to x1: CGFloat, y: CGFloat) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: x0, y: y))
+        p.addLine(to: CGPoint(x: x1, y: y))
+        return p
     }
 }
 

@@ -10,21 +10,21 @@ struct OnboardingView: View {
         VStack(spacing: 28) {
             Spacer()
 
-            ZStack {
-                ProgressRing(fraction: 0.72, lineWidth: 22)
-                Image(systemName: "figure.walk")
-                    .font(.system(size: 56, weight: .bold))
-                    .foregroundStyle(Theme.gradient)
-            }
-            .frame(width: 200, height: 200)
+            TrailMap(
+                fraction: 0.62,
+                milestones: [(0.1, "100"), (0.25, "250"), (0.5, "500"), (0.75, "750"), (1, "1000")]
+            )
+            .frame(height: 220)
+            .padding(.horizontal, 24)
 
             VStack(spacing: 12) {
-                Text("Walk 1000 miles\nthis year")
-                    .font(Theme.bigNumber(36))
+                Text("WALK 1000 MILES\nTHIS YEAR")
+                    .font(Theme.display(44))
+                    .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.center)
                 Text("1000 Miles counts the walking and running distance your iPhone and Apple Watch already record in Apple Health.")
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.inkMuted)
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 24)
@@ -49,16 +49,23 @@ struct OnboardingView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .foregroundStyle(.white)
-                    .background(Theme.gradient, in: Capsule())
+                    .background(Theme.trail, in: Capsule())
                 }
                 .disabled(isWorking)
 
                 Label("Your Health data stays on your iPhone.", systemImage: "lock.fill")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.inkMuted)
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
+        }
+        .background {
+            ZStack {
+                Theme.paper
+                TopoBackground()
+            }
+            .ignoresSafeArea()
         }
     }
 }

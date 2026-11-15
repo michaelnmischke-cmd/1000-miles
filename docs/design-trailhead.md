@@ -8,7 +8,7 @@ This file is the source of truth for the look. Behaviour, data and screens stay 
 
 ## Colors
 
-Add these as color sets in `Assets.xcassets` (Any + Dark appearances) and expose them in `Theme` (Shared/Theme.swift, so the widget extension gets them too). The app follows the system light/dark setting. Light is the "home" look.
+Defined in code as light/dark dynamic colors in `Theme` (Shared/Theme.swift, so the widget extension gets them too). The app follows the system light/dark setting. Light is the "home" look.
 
 | Token | Use | Light | Dark |
 |---|---|---|---|
@@ -30,7 +30,7 @@ Behind pace uses `trail`; ahead of pace uses `forest`. Do not use the old orange
 
 ## Type
 
-- **Display:** Big Shoulders Display (Google Fonts, SIL Open Font License, free to bundle). Weights 800 and 900. Bundle the .ttf files in the app and widget targets and list them under `UIAppFonts`. Always UPPERCASE. Used for the big mile number, screen titles, sign plate values, leaderboard ranks and miles, the lock screen-style numbers in widgets.
+- **Display:** SF Pro Compressed at black/heavy weight (`Theme.display(size)`, which is `.system(size:weight:).width(.compressed)`). It matches the mockup's Big Shoulders Display signage look closely and needs no font files, so the app and widget share it with no Info.plist changes. Always UPPERCASE. Used for the big mile number, screen titles, sign plate values, stats and widget numbers.
 - **Text:** the system font (SF Pro), regular/semibold/bold. Everything else.
 - **Eyebrows:** system font, 10 pt, bold, uppercase, tracking ~1.4, `inkMuted`. Example: "DAY 319 · 2026 TRAIL".
 - Sizes (iPhone points): mile number 64 (with the decimal at 24 in `trail` color), screen title 40, sign value 24, leaderboard numbers 22.
