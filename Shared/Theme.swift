@@ -36,6 +36,11 @@ enum Theme {
     static let good = forest
     static let behind = trail
 
+    /// Colors for side-trail goal rings, cycling forest, trail, muted ink.
+    static func goalColor(_ index: Int) -> Color {
+        [forest, trail, inkMuted][index % 3]
+    }
+
     // MARK: Type
 
     /// Tall, condensed signage numbers and titles (SF Pro Compressed, heavy).

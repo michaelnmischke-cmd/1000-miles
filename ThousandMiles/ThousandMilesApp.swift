@@ -4,11 +4,13 @@ import UIKit
 @main
 struct ThousandMilesApp: App {
     @State private var health = HealthStore()
+    @State private var goals = GoalsStore()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(health)
+                .environment(goals)
         }
     }
 }

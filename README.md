@@ -66,6 +66,9 @@ Pick any iPhone simulator from the device menu and press Play. Make sure a Team 
 | `ThousandMiles/HealthStore.swift` | Asks for Health access and keeps the app's miles up to date |
 | `Shared/MileageReader.swift` | Reads distance and steps from Apple Health (used by the app and widgets) |
 | `Shared/YearProgress.swift` | Pace, miles left, weekly totals, milestones |
+| `ThousandMiles/SideTrails.swift` | Side trails: extra goals like 500 pull-ups, with +1/+5/+10 logging |
+| `ThousandMiles/GoalsStore.swift` | Saves your extra goals on the iPhone |
+| `Shared/CustomGoal.swift` | What a goal and a logged entry are |
 | `ThousandMilesWidget/ThousandMilesWidget.swift` | Home screen and lock screen widgets |
 | `ThousandMiles/ProgressScreen.swift` | The main progress screen |
 | `ThousandMiles/SettingsScreen.swift` | Goal setting |

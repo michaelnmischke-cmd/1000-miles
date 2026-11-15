@@ -24,6 +24,7 @@ struct ProgressScreen: View {
                     header
                     trailMap
                     signs
+                    SideTrailsSection()
                     songButton
                     periodsSection
                     chartSection
