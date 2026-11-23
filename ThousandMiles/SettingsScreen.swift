@@ -46,6 +46,11 @@ struct SettingsScreen: View {
                 }
 
                 Section("About") {
+                    NavigationLink {
+                        FeedbackScreen()
+                    } label: {
+                        Label("Send feedback", systemImage: "envelope")
+                    }
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
                 }
             }
