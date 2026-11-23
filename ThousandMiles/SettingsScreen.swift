@@ -36,13 +36,18 @@ struct SettingsScreen: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        StepSourcesScreen()
+                    } label: {
+                        Label("Step sources", systemImage: "figure.walk.motion")
+                    }
                     Button("Open the Health app") {
                         if let url = URL(string: "x-apple-health://") { openURL(url) }
                     }
                 } header: {
-                    Text("Apple Health")
+                    Text("Where your miles come from")
                 } footer: {
-                    Text("1000 Miles reads Walking + Running Distance and Steps. Steps from devices like WHOOP count too: in the WHOOP app, turn on the Apple Health connection and allow Steps. To change access, open Health, tap your profile picture, then Apps > 1000 Miles.")
+                    Text("1000 Miles reads Walking + Running Distance and Steps from Apple Health, so WHOOP, Garmin, Oura and other trackers count once they're connected to Health. Fitbit connects directly. To change Health access, open Health, tap your profile picture, then Apps > 1000 Miles.")
                 }
 
                 Section("About") {

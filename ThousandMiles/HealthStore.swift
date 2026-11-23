@@ -3,7 +3,7 @@ import HealthKit
 import Observation
 import WidgetKit
 
-/// Reads miles from Apple Health for the current year.
+/// Reads miles for the current year from Apple Health, plus Fitbit when it's connected.
 /// Nothing is written to Health and nothing leaves the phone.
 @MainActor
 @Observable
@@ -24,6 +24,14 @@ final class HealthStore {
     private(set) var lastUpdated: Date?
     /// True when running in the Simulator with sample data (the Simulator has no real steps).
     private(set) var isShowingSampleData = false
+    /// Apps and devices that wrote steps or distance to Apple Health this year (WHOOP, Garmin…).
+    private(set) var healthSourceNames: [String] = []
+    /// Steps from sources outside Apple Health. Fitbit is the only one so far.
+    let fitbit = FitbitConnection()
+
+    /// Miles from Apple Health alone, before other sources are merged in.
+    private var healthMiles: [Date: Double] = [:]
+    private var milesPerStep = MileageReader.defaultMilesPerStep
 
     private let store = HKHealthStore()
 
@@ -71,13 +79,18 @@ final class HealthStore {
 
         if case .ready = status {} else { status = .loading }
 
+        let reader = MileageReader(store: store)
         do {
-            let result = try await MileageReader(store: store).dailyMiles()
-            dailyMiles = result
-            lastUpdated = Date()
+            let readings = try await reader.readings()
+            healthMiles = readings.miles
+            milesPerStep = readings.milesPerStep
             isShowingSampleData = false
+            if readings.miles.isEmpty { useSampleDataIfSimulator() }
+            await fitbit.sync()
+            healthSourceNames = await reader.sourceNames()
+            mergeSources()
+            lastUpdated = Date()
             status = .ready
-            if result.isEmpty { useSampleDataIfSimulator() }
         } catch let error as HKError where error.code == .errorAuthorizationNotDetermined {
             status = .needsPermission
             useSampleDataIfSimulator()
@@ -98,10 +111,16 @@ final class HealthStore {
         return text
     }
 
+    /// Call after Fitbit is connected or disconnected so the totals update right away.
+    func mergeSources() {
+        dailyMiles = MileageReader.merge(miles: healthMiles, extraSteps: [fitbit.dailySteps], milesPerStep: milesPerStep)
+    }
+
     private func useSampleDataIfSimulator() {
         #if targetEnvironment(simulator)
-        dailyMiles = MileageReader.sampleData()
+        healthMiles = MileageReader.sampleData()
         isShowingSampleData = true
         #endif
+        mergeSources()
     }
 }

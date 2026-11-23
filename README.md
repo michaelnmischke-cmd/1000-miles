@@ -2,7 +2,7 @@
 
 An iPhone app that tracks the miles you walk and run each year, with the goal of reaching 1000.
 
-So far: reads walking + running distance (and steps, so WHOOP counts) from Apple Health and shows your yearly progress ring, daily pace, weekly chart, milestones, a goal setting, and home screen and lock screen widgets. Friends, leaderboards and the song button come in later stages.
+So far: reads walking + running distance and steps from Apple Health (so WHOOP, Garmin, Oura and other trackers that sync to Health count), can read Fitbit steps directly ([setup](docs/fitbit-setup.md)), and shows your yearly progress ring, daily pace, weekly chart, milestones, a goal setting, and home screen and lock screen widgets. Friends, leaderboards and the song button come in later stages.
 
 ## Run it on your iPhone
 
@@ -65,6 +65,7 @@ Pick any iPhone simulator from the device menu and press Play. Make sure a Team 
 | `ThousandMiles/ThousandMilesApp.swift` | App start, tabs, refreshing when the app opens |
 | `ThousandMiles/HealthStore.swift` | Asks for Health access and keeps the app's miles up to date |
 | `Shared/MileageReader.swift` | Reads distance and steps from Apple Health (used by the app and widgets) |
+| `ThousandMiles/StepSources/` | Settings > Step sources, and the Fitbit connection (through the Google Health API). Setup: `docs/fitbit-setup.md` |
 | `Shared/YearProgress.swift` | Pace, miles left, weekly totals, milestones |
 | `ThousandMiles/SideTrails.swift` | Side trails: extra goals like 500 pull-ups, with +1/+5/+10 logging |
 | `ThousandMiles/GoalsStore.swift` | Saves your extra goals on the iPhone |
