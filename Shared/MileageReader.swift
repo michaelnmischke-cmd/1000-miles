@@ -19,12 +19,57 @@ struct MileageReader {
     let store: HKHealthStore
     var calendar: Calendar = .current
 
+    /// Raw daily totals from Apple Health, before steps are turned into miles.
+    struct Readings {
+        var distance: [Date: Double] = [:]
+        var steps: [Date: Double] = [:]
+
+        var miles: [Date: Double] { MileageReader.combine(distance: distance, steps: steps) }
+        var milesPerStep: Double { MileageReader.learnedMilesPerStep(distance: distance, steps: steps) }
+    }
+
     func dailyMiles(now: Date = Date()) async throws -> [Date: Double] {
+        try await readings(now: now).miles
+    }
+
+    func readings(now: Date = Date()) async throws -> Readings {
         let startOfYear = calendar.dateInterval(of: .year, for: now)?.start ?? now
         let distance = try await dailyTotals(of: Self.distanceType, unit: .mile(), from: startOfYear, to: now)
         // Steps are a bonus: if they can't be read, carry on with distance alone.
         let steps = (try? await dailyTotals(of: Self.stepType, unit: .count(), from: startOfYear, to: now)) ?? [:]
-        return Self.combine(distance: distance, steps: steps)
+        return Readings(distance: distance, steps: steps)
+    }
+
+    /// Adds steps from sources outside Apple Health (like Fitbit).
+    ///
+    /// Each source sees the same walk (your phone in your pocket and a Fitbit on
+    /// your wrist both count it), so sources are never added together. For each day
+    /// the source that saw the most wins.
+    static func merge(miles: [Date: Double], extraSteps: [[Date: Double]], milesPerStep: Double) -> [Date: Double] {
+        var result = miles
+        for source in extraSteps {
+            for (day, count) in source {
+                result[day] = max(result[day] ?? 0, count * milesPerStep)
+            }
+        }
+        return result
+    }
+
+    /// Which apps and devices have written steps or distance to Apple Health this year,
+    /// for example "WHOOP", "Garmin Connect" or "Michael's Apple Watch".
+    func sourceNames(now: Date = Date()) async -> [String] {
+        let startOfYear = calendar.dateInterval(of: .year, for: now)?.start ?? now
+        let predicate = HKQuery.predicateForSamples(withStart: startOfYear, end: now)
+        var names = Set<String>()
+        for type in [Self.distanceType, Self.stepType] {
+            let query = HKSourceQueryDescriptor(predicate: .quantitySample(type: type, predicate: predicate))
+            if let sources = try? await query.result(for: store) {
+                for source in sources where source.bundleIdentifier != Bundle.main.bundleIdentifier {
+                    names.insert(source.name)
+                }
+            }
+        }
+        return names.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
     }
 
     static func combine(distance: [Date: Double], steps: [Date: Double]) -> [Date: Double] {
